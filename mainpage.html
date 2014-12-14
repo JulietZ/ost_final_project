@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+{% autoescape true %}
+<html>
+  <body>
+  <div>
+  {% if user %}
+    Welcome! {{ user.nickname() }}
+    <br/>
+    <a href="{{ url|safe }}">logout</a>
+  {% else %}
+    <a href="{{ url|safe }}">login</a>
+  {% endif %}
+  <br/>
+  </div>
+  <div>
+    <h3>Question List</h3>
+    <table style="width:100%">
+    <tr><td>created time</td><td>modified time</td><td>Author</td><td>Title</td><td>Content</td><td>Score</td></tr>
+    {% for question in questions %}
+      <tr>
+      <td>{{ question.createDate }}</td>
+      <td>{{ question.modifyDate }}</td>
+      <td>{{ question.author }}</td>
+      <td>{{ question.title }}</td>
+      <td>{{ question.content }}</td>
+      <td>{{ question.voteScore }}</td>
+      </tr>
+    {% endfor %}
+    </table>
+  </div>
+  <div>
+  {% if user %}
+    <h3>Submit Your Question</h3>
+    <form action="/question" method="post">
+      <div><textarea name="qtitle" rows="3" cols="60">Type your question title here ...</textarea></div>
+      <div><textarea name="qcontent" rows="30" cols="60">Type your question content here ...</textarea></div>
+      <div>
+      <input type="submit" value="Submit Question">&nbsp;
+      <input type="reset" value="Reset">
+      </div>
+    </form>
+  {% endif %}
+  </div>
+  </body>
+</html>
+{% endautoescape %}
