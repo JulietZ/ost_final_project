@@ -39,7 +39,7 @@ class Questions(ndb.Model):
     content = ndb.StringProperty(indexed=False)
     createDate = ndb.DateTimeProperty(auto_now_add=True)
     title = ndb.StringProperty(indexed=False)
-    modifyDate = ndb.DateTimeProperty()
+    modifyDate = ndb.DateTimeProperty(auto_now=True)
     tag = ndb.StringProperty(repeated=True)
     voteScore = ndb.IntegerProperty()
     
@@ -67,9 +67,10 @@ class MainPage(webapp2.RequestHandler):
 
         else:
             url = users.create_login_url(self.request.uri)
-        questions_query = Questions.query(
-           ancestor=site_key()).order(-Questions.createDate)
+
+        questions_query = Questions.query().order(-Questions.createDate)
         questions = questions_query.fetch(10)
+        #questions = ndb.gql("Select * from Questions Order by createDate desc")
         template_values = {
             'user': users.get_current_user(),
             'questions': questions,
@@ -78,7 +79,60 @@ class MainPage(webapp2.RequestHandler):
         template = JINJA_ENVIRONMENT.get_template('mainpage.html')
         self.response.write(template.render(template_values))
 
+class CreateQuestion(webapp2.RequestHandler):
+    def post(self):
+        if self.request.get('equestion'):
+            questionKey=self.request.get('equestion')
+            question=ndb.Key(urlsafe = questionKey).get()
+            question.title=self.request.get('eqtitle')
+            question.content=self.request.get('eqcontent')
+            question.tag=self.request.get('eqtag',allow_multiple=True)
+            question.put()
+            self.redirect('/')
+
+        elif self.request.get('qtitle'):
+            question=Questions()
+            if users.get_current_user():
+                question.author = users.get_current_user()
+                question.title = self.request.get('qtitle')
+                question.content = self.request.get('qcontent')
+                question.voteScore = 0
+                question.tag = self.request.get('qtag', allow_multiple=True)
+                question.put()
+                self.redirect('/')
+
+            else:
+                self.redirect(users.create_login_url(self.request.uri))
+
+class Personal(webapp2.RequestHandler):
+    def get(self):
+        user = users.get_current_user()
+        question_qry = Questions.query(Questions.author == user).order(-Questions.createDate)
+        questions=question_qry.fetch(10)
+        template_values = {
+            'user': user,
+            'questions': questions
+        }
+        template = JINJA_ENVIRONMENT.get_template('homepage.html')
+        self.response.write(template.render(template_values))        
+
+class EditQuestion(webapp2.RequestHandler):
+    def get(self):
+        user = users.get_current_user()
+        if self.request.get('questionKey'):
+            questionKey=self.request.get('questionKey')
+            question=ndb.Key(urlsafe = questionKey).get()
+            template_values = {
+                'user': user,
+                'question': question
+            }
+            template = JINJA_ENVIRONMENT.get_template('edit.html')
+            self.response.write(template.render(template_values))
+
 application = webapp2.WSGIApplication([
-    ('/', MainPage)
+    ('/', MainPage),
+    ('/question', CreateQuestion),
+    ('/personal', Personal),
+    ('/edit', EditQuestion),
 ], debug=True)
 

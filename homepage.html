@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+{% autoescape true %}
+<html>
+  <body>
+  <div>
+    {{ user }} 's Home
+  <br/>
+  </div>
+  <div>
+    <h3>Your Question List</h3>
+    <table style="width:100%">
+    <tr><td>created time</td><td>modified time</td><td>Author</td><td>Title</td><td>Content</td><td>Score</td><td>Edit</td></tr>
+    {% for question in questions %}
+      <tr>
+      <td>{{ question.createDate }}</td>
+      <td>{{ question.modifyDate }}</td>
+      <td>{{ question.author }}</td>
+      <td>{{ question.title }}</td>
+      <td>{{ question.content }}</td>
+      <td>{{ question.voteScore }}</td>
+      <td><a href="{{ ('/edit?questionKey=' + question.key.urlsafe()) |safe }}">Edit</a></td>
+      </tr>
+    {% endfor %}
+    </table>
+  </div>
+  <a href="/">Back</a>
+  </body>
+</html>
+{% endautoescape %}

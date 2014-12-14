@@ -6,6 +6,7 @@
   {% if user %}
     Welcome! {{ user.nickname() }}
     <br/>
+    <a href="/personal">Home Page</a>&nbsp;&nbsp;&nbsp;
     <a href="{{ url|safe }}">logout</a>
   {% else %}
     <a href="{{ url|safe }}">login</a>
@@ -15,7 +16,7 @@
   <div>
     <h3>Question List</h3>
     <table style="width:100%">
-    <tr><td>created time</td><td>modified time</td><td>Author</td><td>Title</td><td>Content</td><td>Score</td></tr>
+    <tr><td>created time</td><td>modified time</td><td>Author</td><td>Title</td><td>Content</td><td>Score</td><td>View Detail</td></tr>
     {% for question in questions %}
       <tr>
       <td>{{ question.createDate }}</td>
@@ -24,6 +25,7 @@
       <td>{{ question.title }}</td>
       <td>{{ question.content }}</td>
       <td>{{ question.voteScore }}</td>
+      <td><a href="{{ ('/view?questionKey=' + question.key.urlsafe()) |safe }}">View Detail</a></td>
       </tr>
     {% endfor %}
     </table>
@@ -32,8 +34,16 @@
   {% if user %}
     <h3>Submit Your Question</h3>
     <form action="/question" method="post">
-      <div><textarea name="qtitle" rows="3" cols="60">Type your question title here ...</textarea></div>
-      <div><textarea name="qcontent" rows="30" cols="60">Type your question content here ...</textarea></div>
+      <div>Title: </br><textarea name="qtitle" rows="3" cols="60" required>Type your question title here ...</textarea></div>
+      <div>Content: </br><textarea name="qcontent" rows="30" cols="60" required>Type your question content here ...</textarea></div>
+      <div>
+        Tag:<br/>
+        <input type="checkbox" name="qtag" value="Movie">Movie<br>
+        <input type="checkbox" name="qtag" value="Music">Music<br>
+        <input type="checkbox" name="qtag" value="Sports">Sports<br>
+        <input type="checkbox" name="qtag" value="Programming">Programming<br>
+        <input type="checkbox" name="qtag" value="Travel">Travel
+      </div>
       <div>
       <input type="submit" value="Submit Question">&nbsp;
       <input type="reset" value="Reset">

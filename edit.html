@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+{% autoescape true %}
+<html>
+  <body>
+  <div>
+    <h3>{{ user.nickname() }}, Edit your question</h3>
+  <br/>
+  </div>
+  <div>
+    <form action="/question" method="post">
+    <input type="hidden" name="equestion" value="{{ question.key.urlsafe() }}">
+      <div>Title: </br><textarea name="eqtitle" rows="3" cols="60" required>{{ question.title }}</textarea></div>
+      <div>Content: </br><textarea name="eqcontent" rows="30" cols="60" required>{{ question.content }}</textarea></div>
+      <div>
+        Tag:<br/>
+        <input type="checkbox" name="eqtag" value="Movie">Movie<br>
+        <input type="checkbox" name="eqtag" value="Music">Music<br>
+        <input type="checkbox" name="eqtag" value="Sports">Sports<br>
+        <input type="checkbox" name="eqtag" value="Programming">Programming<br>
+        <input type="checkbox" name="eqtag" value="Travel">Travel
+      </div>
+      <div>
+      <input type="submit" value="Finish Edit">&nbsp;
+      <input type="reset" value="Reset">
+      </div>
+    </form>
+    <a href="/personal">Back</a>
+  </div>
+  </body>
+</html>
+{% endautoescape %}
