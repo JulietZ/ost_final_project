@@ -3,5 +3,11 @@ indexes:
 - kind: Questions
   ancestor: yes
   properties:
-  - name: createDate
+  - name: modifyDate
+    direction: desc
+
+- kind: Answers
+  ancestor: yes
+  properties:
+  - name: voteScore
     direction: desc

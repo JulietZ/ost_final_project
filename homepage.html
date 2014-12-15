@@ -23,6 +23,24 @@
     {% endfor %}
     </table>
   </div>
+  <div>
+    <h3>Your Answer List</h3>
+    <table style="width:100%">
+    <tr><td>created time</td><td>modified time</td><td>Author</td><td>Title</td><td>Content</td><td>Score</td><td>Edit</td></tr>
+    {% for answer in answers %}
+      <tr>
+      <td>{{ answer.createDate }}</td>
+      <td>{{ answer.modifyDate }}</td>
+      <td>{{ answer.author }}</td>
+      <td>{{ answer.title }}</td>
+      <td>{{ answer.content }}</td>
+      <td>{{ answer.voteScore }}</td>
+      <td><a href="{{ ('/edit?answerKey=' + answer.key.urlsafe()) |safe }}">Edit</a></td>
+      </tr>
+    {% endfor %}
+    </table>
+  </div>
+  <br/>
   <a href="/">Back</a>
   </body>
 </html>

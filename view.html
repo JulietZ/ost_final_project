@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+{% autoescape true %}
+<html>
+  <body>
+  <div>
+  {% if user %}
+    Welcome! {{ user.nickname() }}
+    <br/>
+    <a href="/personal">Home Page</a>&nbsp;&nbsp;&nbsp;
+    <a href="{{ url|safe }}">logout</a>
+  {% else %}
+    <a href="{{ url|safe }}">login</a>
+  {% endif %}
+  <br/>
+  </div>
+  <br/>
+  <a href="/">Back to Main Page</a>
+  <br/>
+  <div>
+    <h3>{{ question.title }}</h3>
+    {{ question.content }}<br/><br/>
+    --Created by {{ question.author }}<br/><br/>
+    {{ question.voteScore }}
+    {% if user %}
+    &nbsp;&nbsp;&nbsp;<a href="{{ ('/voteUp?questionKey=' + question.key.urlsafe()) |safe }}">Up</a>
+    &nbsp;&nbsp;&nbsp;<a href="{{ ('/voteDown?questionKey=' + question.key.urlsafe()) |safe }}">Down</a>
+    {% endif %}
+  </div>
+  <div>
+    <h3>Answer List</h3>
+    <table style="width:100%">
+    <tr><td>created time</td><td>modified time</td><td>Author</td><td>Title</td><td>Content</td><td>Score</td>
+    {% if user %}
+    <td>Vote</td>
+    {% endif %}
+    </tr>
+    {% for answer in answers %}
+      <tr>
+      <td>{{ answer.createDate }}</td>
+      <td>{{ answer.modifyDate }}</td>
+      <td>{{ answer.author }}</td>
+      <td>{{ answer.title }}</td>
+      <td>{{ answer.content }}</td>
+      <td>{{ answer.voteScore }}</td>
+      {% if user %}
+      <td><a href="{{ ('/voteUp?answerKey=' + answer.key.urlsafe()+'&questionKey=' + question.key.urlsafe()) |safe }}">Up</a>&nbsp;
+      <a href="{{ ('/voteDown?answerKey=' + answer.key.urlsafe()+'&questionKey=' + question.key.urlsafe()) |safe }}">Down</a></td>
+      {% endif %}
+      </tr>
+    {% endfor %}
+    </table>
+  </div>
+  <div>
+  {% if user %}
+    <h3>Submit Your Answer</h3>
+    <form action="/answer" method="post">
+    <input type="hidden" name="questionKey" value="{{ question.key.urlsafe() }}">
+      <div>Title: </br><textarea name="atitle" rows="3" cols="60" required>Type your answer title here ...</textarea></div>
+      <div>Content: </br><textarea name="acontent" rows="10" cols="60" required>Type your answer content here ...</textarea></div>
+      <div>
+      <input type="submit" value="Submit Answer">&nbsp;
+      <input type="reset" value="Reset">
+      </div>
+    </form>
+  {% endif %}
+  </div>
+  </body>
+</html>
+{% endautoescape %}

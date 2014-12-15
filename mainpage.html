@@ -15,6 +15,12 @@
   </div>
   <div>
     <h3>Question List</h3>
+    <a href="/">All</a>&nbsp;&nbsp;
+    <a href="/tag?type=Movie">Movie</a>&nbsp;&nbsp;
+    <a href="/tag?type=Music">Music</a>&nbsp;&nbsp;
+    <a href="/tag?type=Sports">Sports</a>&nbsp;&nbsp;
+    <a href="/tag?type=Programming">Programming</a>&nbsp;&nbsp;
+    <a href="/tag?type=Travel">Travel</a>&nbsp;&nbsp;
     <table style="width:100%">
     <tr><td>created time</td><td>modified time</td><td>Author</td><td>Title</td><td>Content</td><td>Score</td><td>View Detail</td></tr>
     {% for question in questions %}
@@ -35,7 +41,7 @@
     <h3>Submit Your Question</h3>
     <form action="/question" method="post">
       <div>Title: </br><textarea name="qtitle" rows="3" cols="60" required>Type your question title here ...</textarea></div>
-      <div>Content: </br><textarea name="qcontent" rows="30" cols="60" required>Type your question content here ...</textarea></div>
+      <div>Content: </br><textarea name="qcontent" rows="10" cols="60" required>Type your question content here ...</textarea></div>
       <div>
         Tag:<br/>
         <input type="checkbox" name="qtag" value="Movie">Movie<br>

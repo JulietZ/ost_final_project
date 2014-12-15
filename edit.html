@@ -6,11 +6,12 @@
     <h3>{{ user.nickname() }}, Edit your question</h3>
   <br/>
   </div>
+  {% if question %}
   <div>
     <form action="/question" method="post">
     <input type="hidden" name="equestion" value="{{ question.key.urlsafe() }}">
       <div>Title: </br><textarea name="eqtitle" rows="3" cols="60" required>{{ question.title }}</textarea></div>
-      <div>Content: </br><textarea name="eqcontent" rows="30" cols="60" required>{{ question.content }}</textarea></div>
+      <div>Content: </br><textarea name="eqcontent" rows="10" cols="60" required>{{ question.content }}</textarea></div>
       <div>
         Tag:<br/>
         <input type="checkbox" name="eqtag" value="Movie">Movie<br>
@@ -26,6 +27,20 @@
     </form>
     <a href="/personal">Back</a>
   </div>
+  {% else %}
+  <div>
+    <form action="/answer" method="post">
+    <input type="hidden" name="eanswer" value="{{ answer.key.urlsafe() }}">
+      <div>Title: </br><textarea name="eatitle" rows="3" cols="60" required>{{ answer.title }}</textarea></div>
+      <div>Content: </br><textarea name="eacontent" rows="10" cols="60" required>{{ answer.content }}</textarea></div>
+      <div>
+      <input type="submit" value="Finish Edit">&nbsp;
+      <input type="reset" value="Reset">
+      </div>
+    </form>
+    <a href="/personal">Back</a>
+  </div>
+  {% endif %}
   </body>
 </html>
 {% endautoescape %}
