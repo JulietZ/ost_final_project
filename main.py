@@ -72,11 +72,34 @@ class MainPage(webapp2.RequestHandler):
             questions_query = Questions.query(Questions.tag==qtype).order(-Questions.modifyDate)
         else:
             questions_query = Questions.query().order(-Questions.modifyDate)
-        questions = questions_query.fetch(10)
+        lenquestion = questions_query.fetch()
+        #questions = questions_query.fetch()
+        pageno=1
+        pagesize=10
+        nextpage=False
+        previouspage=False
+        if self.request.get('pageno'):
+            pageno=int(self.request.get('pageno'))
+        if self.request.get('nextpage'):
+            pageno=pageno+1
+        if self.request.get('previouspage'):
+            pageno=pageno-1
+        if pageno>1:
+            previouspage=True
+        if len(lenquestion)>(pagesize*pageno):
+            nextpage=True
+            temp=pagesize
+        else:
+            temp=len(lenquestion)-(pagesize*(pageno-1))
+        questions = questions_query.fetch(temp,offset=(pageno-1)*pagesize)
+        
         template_values = {
             'user': users.get_current_user(),
             'questions': questions,
-            'url': url
+            'url': url,
+            'pageno': pageno,
+            'next': nextpage,
+            'previous': previouspage
         }
         template = JINJA_ENVIRONMENT.get_template('mainpage.html')
         self.response.write(template.render(template_values))

@@ -35,6 +35,13 @@
       </tr>
     {% endfor %}
     </table>
+    {% if previous==True %}
+      <a href="/tag?pageno={{ pageno }}&previouspage={{ previous }}">Previous</a>&nbsp;&nbsp;
+      {% endif %}
+      Page: {{ pageno }}&nbsp;&nbsp;
+      {% if next==True %}
+      <a href="/tag?pageno={{ pageno }}&nextpage={{ next }}">Next</a>
+      {% endif %}
   </div>
   <div>
   {% if user %}
