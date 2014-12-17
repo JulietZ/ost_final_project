@@ -1,20 +1,27 @@
 <!DOCTYPE html>
 {% autoescape true %}
 <html>
+<head>
+    <link type="text/css" rel="stylesheet" href="/stylesheets/style.css" />
+    <title> OST Final </title>
+</head>
   <body>
-  <div>
+  <div id="container" aligh="center">
+<div id="header">
   {% if user %}
     Welcome! {{ user.nickname() }}
     <br/>
-    <a href="/personal">Home Page</a>&nbsp;&nbsp;&nbsp;
-    <a href="{{ url|safe }}">logout</a>
+    <a href="/personal">Home Page</a>&nbsp;&nbsp;&nbsp;&nbsp;
+    <a href="{{ url|safe }}">logout</a><br/><br/>
+    <div><a href="/upload">Upload an image</a></div><br/>
   {% else %}
-    <a href="{{ url|safe }}">login</a>
+    <a href="{{ url|safe }}">login</a><br/><br/>
+    <div style="float:right;"><a href="/imglist">View Image List</a></div><br/>
   {% endif %}
-  <br/>
+
   </div>
-  <div>
-    <h3>Question List</h3>
+  <div id="content">
+    <h1>Question List</h1>
     <a href="/">All</a>&nbsp;&nbsp;
     <a href="/tag?type=Movie">Movie</a>&nbsp;&nbsp;
     <a href="/tag?type=Music">Music</a>&nbsp;&nbsp;
@@ -42,18 +49,18 @@
     &nbsp;&nbsp;-<a href="{{ ('/tag?type=' + sitag) |safe }}">{{ sitag }}</a>
     {% endfor %}<br/></i>
     <i>Vote Score: {{ question.voteScore }}<br/><br/></i>
-    <i>{{ question.content |truncate(500,true)| html_display | safe}}
+    <p>{{ question.content |truncate(500,true)| html_display | safe}}
       {% if question.content|truncate(500,true) != question.content %}
         <a href="{{ ('/detail?questionKey=' + question.key.urlsafe()) |safe }}">. . .</a>
         {% endif %}
-        <br/></i>
-    {% if question.imgUrl %}        
-        <div><a href="{{ question.imgUrl}} "><img src="{{ question.imgUrl }}"></img></a><br/>
-        <a href="{{ question.imgUrl}} ">{{ question.imgUrl}}</a></div>
-    {% endif %}
+        <br/></p>
     {% if user and user!=question.author %}
-      <a href="{{ ('/edit?create=question&questionKey=' + question.key.urlsafe()) |safe }}">create following question</a>
+      <a href="{{ ('/edit?create=question&questionKey=' + question.key.urlsafe()) |safe }}"><h2>create following question</h2></a>
     {% endif %}
+    {% if user==question.author %}
+      <h2><a href="{{ ('/edit?questionKey=' + question.key.urlsafe()) |safe }}">Edit</a>
+     </h2>
+      {% endif %}
     <hr>
     </p>
     {% endfor %}
@@ -65,10 +72,10 @@
       <a href="/tag?pageno={{ pageno }}&nextpage={{ next }}">Next</a>
       {% endif %}
     </div>
-  <div>
+  <div id="newcontent">
   {% if user %}
     <h3>Submit Your Question</h3>
-    <form action="{{ submit_url }}" method="post" enctype="multipart/form-data">
+    <form action="/question" method="post" >
       <div>Title: </br><textarea name="qtitle" rows="3" cols="60" required>Type your question title here ...</textarea></div>
       <div>Content: </br><textarea name="qcontent" rows="10" cols="60" required>Type your question content here ...</textarea></div>
       <div>
@@ -79,13 +86,17 @@
         <input type="checkbox" name="qtag" value="Programming">Programming<br>
         <input type="checkbox" name="qtag" value="Travel">Travel
       </div>
-      <div>Upload a image: <input type="file" name="qimg"></div>
       <div>
       <input type="submit" value="Submit Question">&nbsp;
       <input type="reset" value="Reset">
       </div>
     </form>
   {% endif %}
+  </div>
+  <div id="footer">
+  <br/>
+Copyright © 2014 | All Rights Reserved  
+</div>
   </div>
   </body>
 </html>

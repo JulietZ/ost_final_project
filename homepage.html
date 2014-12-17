@@ -1,14 +1,20 @@
 <!DOCTYPE html>
 {% autoescape true %}
 <html>
+<html>
+<head>
+    <link type="text/css" rel="stylesheet" href="/stylesheets/style.css" />
+    <title> OST Final </title>
+</head>
   <body>
-  <div>
+ <div id="container" aligh="center">
+<div id="header">
     {{ user }} 's Home
   <br/>
   <a href="/">Back to Main Page</a>
   </div>
-  <div>
-    <h3>Your Question List</h3>
+  <div id="content">
+    <h1>Your Question List</h1>
      <hr>
     {% for question in questions %}
       <p>
@@ -26,18 +32,14 @@
         <a href="{{ ('/detail?questionKey=' + question.key.urlsafe()) |safe }}">. . .</a>
         {% endif %}
         <br/></i>
-    {% if question.imgUrl %}        
-        <div><a href="{{ question.imgUrl}} "><img src="{{ question.imgUrl }}"></img></a><br/>
-        <a href="{{ question.imgUrl}} ">{{ question.imgUrl}}</a></div>
-    {% endif %}
     <br/><a href="{{ ('/edit?questionKey=' + question.key.urlsafe()) |safe }}">Edit</a>
     &nbsp;&nbsp;&nbsp;&nbsp;<a href="{{ ('/delete?questionKey=' + question.key.urlsafe()) |safe }}">Delete</a>
     <hr>
     </p>
     {% endfor %}
   </div>
-  <div>
-    <h3>Your Following Question List</h3>
+  <div id="content">
+    <h1>Your Following Question List</h1>
      <hr>
   {% for fquestion in fquestions %}
   <p>
@@ -48,11 +50,7 @@
     <i>follow question: {{ fquestion.qtitle }}<br/></i>
     <i>questioned by: {{ fquestion.author }}<br/></i>
     <i>Vote Score: {{ fquestion.voteScore }}<br/><br/></i>
-    <i>{{ fquestion.content }}<br/></i>
-    {% if fquestion.imgUrl %}        
-        <div><a href="{{ fquestion.imgUrl}} "><img src="{{ fquestion.imgUrl }}"></img></a><br/>
-        <a href="{{ fquestion.imgUrl}} ">{{ fquestion.imgUrl}}</a></div>
-    {% endif %}<br/>
+    <i>{{ fquestion.content| html_display | safe }}<br/></i>
     {% if user==fquestion.author %}
       <a href="{{ ('/edit?fquestionKey=' + fquestion.key.urlsafe()) |safe }}">Edit</a>
       &nbsp;&nbsp;&nbsp;&nbsp;<a href="{{ ('/delete?fquestionKey=' + fquestion.key.urlsafe()) |safe }}">Delete</a>&nbsp;&nbsp;&nbsp;&nbsp;
@@ -62,8 +60,8 @@
   </p>
   {% endfor %}
   </div>
-  <div>
-    <h3>Your Answer List</h3>
+  <div id="content">
+    <h1>Your Answer List</h1>
     <hr>
     {% for answer in answers %}
     <p>
@@ -74,15 +72,29 @@
     <i>answered by: {{ answer.author }}<br/></i>
     <i>Vote Score: {{ answer.voteScore }}<br/><br/></i>
     <i>{{ answer.content | html_display | safe}}<br/></i>
-    {% if answer.imgUrl %}        
-        <div><a href="{{ answer.imgUrl}} "><img src="{{ answer.imgUrl }}"></img></a><br/>
-        <a href="{{ answer.imgUrl}} ">{{ answer.imgUrl}}</a></div>
-    {% endif %}
       <br/><a href="{{ ('/edit?answerKey=' + answer.key.urlsafe()) |safe }}">Edit</a>
       &nbsp;&nbsp;&nbsp;&nbsp;<a href="{{ ('/delete?answerKey=' + answer.key.urlsafe()) |safe }}">Delete</a>
       <hr>
       </p>
     {% endfor %}
+  </div>
+  <div id="content">
+  <h1> Your Uploaded Image</h1>
+  <hr>
+    {% for image in images %}
+    <p>
+    <h3><a href="{{ image.imgUrl}} ">{{ image.imgUrl}}</a></h3>
+    <i>created time: {{ image.createDate.strftime("%y/%m/%d %H:%M:%S") }}<br/></i>
+    <i>uploaded by: {{ image.author }}<br/></i>
+    <a href="{{ image.imgUrl}} "><img src="{{ image.imgUrl }}"></img></a><br/>
+    <hr>
+    </p>
+    {% endfor %}
+  </div>
+  <div id="footer">
+  <br/>
+Copyright © 2014 | All Rights Reserved  
+</div>
   </div>
   </body>
 </html>

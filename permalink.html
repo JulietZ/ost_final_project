@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+{% autoescape true %}
+<html>
+<head>
+    <link type="text/css" rel="stylesheet" href="/stylesheets/style.css" />
+    <title> OST Final </title>
+</head>
+  <body>
+  <div id="container" aligh="center">
+<div id="header">
+  {% if error %}
+  <h1>{{ user.nickname() }}, Upload Failure</h1><br/>
+  {% else %}
+    <h1>{{ user.nickname() }}, Upload Successfully</h1><br/>
+  {% endif %}
+  <br/><br/><br/>
+  </div>
+  <div id="content">
+  {% if not error %}
+  <h3>Permalink: <a href="{{ image.imgUrl }} ">{{ image.imgUrl }}</a></h3><br/><br/>
+  {% endif %}
+    <a href="/upload"> Upload another image</a>&nbsp;&nbsp;&nbsp;&nbsp;
+    <a href="/">Back to Main Page</a>
+  </div>
+   </div>
+  <div id="footer">
+  <br/>
+Copyright © 2014 | All Rights Reserved  
+</div>
+  </div>
+  <div id="footer">
+  <br/>
+Copyright © 2014 | All Rights Reserved  
+</div>
+  </div>
+  </body>
+</html>
+{% endautoescape %}

@@ -1,8 +1,13 @@
 <!DOCTYPE html>
 {% autoescape true %}
 <html>
+<head>
+    <link type="text/css" rel="stylesheet" href="/stylesheets/style.css" />
+    <title> OST Final </title>
+</head>
   <body>
-  <div>
+  <div id="container" aligh="center">
+<div id="header">
   {% if user %}
     Welcome! {{ user.nickname() }}
     <br/>
@@ -12,12 +17,12 @@
     <a href="{{ url|safe }}">login</a>
   {% endif %}
   <br/>
-  </div>
   <br/>
   <a href="/">Back to Main Page</a>&nbsp;&nbsp;&nbsp;<a href="{{ ('/RSS?questionKey=' + question.key.urlsafe()) |safe }}">RSS Feed</a>
-  <br/>
+  </div>
+  <div id="content">
   <div>
-    <h3>{{ question.title|safe}}</h3>
+    <h1>{{ question.title|safe}}</h1>
     created time: {{ question.createDate.strftime("%y/%m/%d %H:%M:%S") }}<br/>
     latest modified time: {{ question.modifyDate.strftime("%y/%m/%d %H:%M:%S") }}<br/>
     questioned by: {{ question.author }}<br/>
@@ -31,10 +36,6 @@
     &nbsp;&nbsp;&nbsp;<a href="{{ ('/voteDown?questionKey=' + question.key.urlsafe()) |safe }}">Down</a>
     {% endif %}<br/><br/>
     {{ question.content| html_display | safe }}<br/>
-    {% if question.imgUrl %}        
-        <div><a href="{{ question.imgUrl}} "><img src="{{ question.imgUrl }}"></img></a><br/>
-        <a href="{{ question.imgUrl}} ">{{ question.imgUrl}}</a></div>
-    {% endif %}
     <br/>
     {% if user==question.author %}
       <a href="{{ ('/edit?questionKey=' + question.key.urlsafe()) |safe }}">Edit</a>
@@ -57,25 +58,50 @@
       &nbsp;&nbsp;<a href="{{ ('/voteUp?fquestionKey=' + fquestion.key.urlsafe()+'&questionKey=' + question.key.urlsafe()) |safe }}">Up</a>
       &nbsp;&nbsp;<a href="{{ ('/voteDown?fquestionKey=' + fquestion.key.urlsafe()+'&questionKey=' + question.key.urlsafe()) |safe }}">Down</a>
       {% endif %}<br/><br/></i>
-    <i>{{ fquestion.content }}<br/></i>
-    {% if fquestion.imgUrl %}        
-        <div><a href="{{ fquestion.imgUrl}} "><img src="{{ fquestion.imgUrl }}"></img></a><br/>
-        <a href="{{ fquestion.imgUrl}} ">{{ fquestion.imgUrl}}</a></div>
-    {% endif %}
+    <i>{{ fquestion.content| html_display | safe }}<br/></i>
     <br/>
     {% if user==fquestion.author %}
       <a href="{{ ('/edit?fquestionKey=' + fquestion.key.urlsafe()) |safe }}">Edit</a>
-      &nbsp;&nbsp;&nbsp;&nbsp;<a href="{{ ('/delete?fquestionKey=' + fquestion.key.urlsafe()) |safe }}">Delete</a>&nbsp;&nbsp;&nbsp;&nbsp;
+      &nbsp;&nbsp;&nbsp;&nbsp;<a href="{{ ('/delete?fquestionKey=' + fquestion.key.urlsafe()+'&questionKey=' + question.key.urlsafe()) |safe }}">Delete</a>&nbsp;&nbsp;&nbsp;&nbsp;
       {% endif %}
   </div>
   {% endfor %}
   <hr>
+  {% if usedAnswer %}
   <div>
-    <h3>Your Answer List</h3>
+  <h3>Best Answer: </h3>
+  <hr>
+  {% if user==question.author %}
+      <a href="{{ ('/unlike?answerKey=' + usedAnswer.key.urlsafe()+'&questionKey=' + question.key.urlsafe()) |safe }}">Don't like this answer any more</a><br/>
+  {% endif %}
+  <h3>{{ usedAnswer.title|safe}}</h3>
+    <i>selected by others for <strong>{{ usedAnswer.score }} </strong><br/></i>
+    <i>created time: {{ usedAnswer.createDate.strftime("%y/%m/%d %H:%M:%S") }}<br/></i>
+    <i>latest modified time: {{ usedAnswer.modifyDate.strftime("%y/%m/%d %H:%M:%S") }}<br/></i>
+    <i>answered by: {{ usedAnswer.author }}<br/></i>
+    <i>Vote Score: {{ usedAnswer.voteScore }}
+    {% if user %}
+      &nbsp;&nbsp;<a href="{{ ('/voteUp?answerKey=' + usedAnswer.key.urlsafe()+'&questionKey=' + question.key.urlsafe()) |safe }}">Up</a>
+      &nbsp;&nbsp;<a href="{{ ('/voteDown?answerKey=' + usedAnswer.key.urlsafe()+'&questionKey=' + question.key.urlsafe()) |safe }}">Down</a>
+      {% endif %}
+    <br/><br/></i>
+    <i>{{ usedAnswer.content | html_display | safe}}<br/></i>
+  </div>
+  <hr>
+  <div>
+    <h3>Other Answer List</h3>
+  {% else %}
+  <div>
+    <h3>Answer List</h3>
+  {% endif %}
     <hr>
     {% for answer in answers %}
     <p>
+    {% if user==question.author and not usedAnswer %}
+      <a href="{{ ('/select?answerKey=' + answer.key.urlsafe()+'&questionKey=' + question.key.urlsafe()) |safe }}">Select as best Answer</a><br/>
+    {% endif %}
     <h3>{{ answer.title|safe}}</h3>
+    <i>selected by others for <strong>{{ answer.score }} </strong><br/></i>
     <i>created time: {{ answer.createDate.strftime("%y/%m/%d %H:%M:%S") }}<br/></i>
     <i>latest modified time: {{ answer.modifyDate.strftime("%y/%m/%d %H:%M:%S") }}<br/></i>
     <i>answered to question: {{ answer.qtitle }}<br/></i>
@@ -87,33 +113,35 @@
       {% endif %}
     <br/><br/></i>
     <i>{{ answer.content | html_display | safe}}<br/></i>
-    {% if answer.imgUrl %}        
-        <div><a href="{{ answer.imgUrl}} "><img src="{{ answer.imgUrl }}"></img></a><br/>
-        <a href="{{ answer.imgUrl}} ">{{ answer.imgUrl}}</a></div>
-    {% endif %}
       <br/>
       {% if user==answer.author %}
       <a href="{{ ('/edit?answerKey=' + answer.key.urlsafe()) |safe }}">Edit</a>
-      &nbsp;&nbsp;&nbsp;&nbsp;<a href="{{ ('/delete?answerKey=' + answer.key.urlsafe()) |safe }}">Delete</a>
+      &nbsp;&nbsp;&nbsp;&nbsp;<a href="{{ ('/delete?answerKey=' + answer.key.urlsafe()+'&questionKey=' + question.key.urlsafe()) |safe }}">Delete</a>
       {% endif %}
       <hr>
       </p>
     {% endfor %}
+ 
   </div>
-  <div>
+  </div>
+  <div id="newcontent">
   {% if user %}
     <h3>Submit Your Answer</h3>
-    <form action="{{ submit_url }}" method="post" enctype="multipart/form-data">
+    <form action="/answer" method="post">
     <input type="hidden" name="questionKey" value="{{ question.key.urlsafe() }}">
       <div>Title: </br><textarea name="atitle" rows="3" cols="60" required>Type your answer title here ...</textarea></div>
       <div>Content: </br><textarea name="acontent" rows="10" cols="60" required>Type your answer content here ...</textarea></div>
-      <div>Upload a image: <input type="file" name="aimg"></div>
       <div>
       <input type="submit" value="Submit Answer">&nbsp;
       <input type="reset" value="Reset">
       </div>
     </form>
   {% endif %}
+  </div>
+ <div id="footer">
+  <br/>
+Copyright © 2014 | All Rights Reserved  
+</div>
   </div>
   </body>
 </html>

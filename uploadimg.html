@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+{% autoescape true %}
+<html>
+<head>
+    <link type="text/css" rel="stylesheet" href="/stylesheets/style.css" />
+    <title> OST Final </title>
+</head>
+  <body>
+  <div id="container" aligh="center">
+<div id="header">
+    <h1>{{ user.nickname() }}, Upload your image</h1>
+  <br/>
+  </div>
+  <div id="newcontent">
+    <form action="{{ upload_url }}" method="post" enctype="multipart/form-data">
+      <div>Upload a image: <input type="file" name="img" accept="image/gif, image/jpg, image/png"></div>
+      <input type="submit" value="Upload">
+    </form>
+    <br/><br/>
+    <h3><a href="/">Back</a></h3>
+  </div>
+  <div id="footer">
+  <br/>
+Copyright © 2014 | All Rights Reserved  
+</div>
+  </div>
+  </body>
+</html>
+{% endautoescape %}

@@ -1,5 +1,11 @@
 indexes:
 
+- kind: UploadImg
+  ancestor: yes
+  properties:
+  - name: createDate
+    direction: desc
+
 - kind: Questions
   ancestor: yes
   properties:

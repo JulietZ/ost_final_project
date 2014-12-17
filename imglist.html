@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+{% autoescape true %}
+<html>
+<head>
+    <link type="text/css" rel="stylesheet" href="/stylesheets/style.css" />
+    <title> OST Final </title>
+</head>
+  <body>
+  <div id="container" aligh="center">
+<div id="header">
+  <h1>Image List</h1>
+  <a href="/">Back to Main Page</a>
+  </div>
+  <hr><br/>
+  <div id="content">
+    {% for image in images %}
+    <div>
+    <h3><a href="{{ image.imgUrl}} ">{{ image.imgUrl}}</a></h3>
+    <i>created time: {{ image.createDate.strftime("%y/%m/%d %H:%M:%S") }}<br/></i>
+    <i>uploaded by: {{ image.author }}<br/></i>
+    <a href="{{ image.imgUrl}} "><img src="{{ image.imgUrl }}"></img></a><br/>
+    </div>
+<hr>
+    {% endfor %}
+  </div>
+  <div id="footer">
+  <br/>
+Copyright © 2014 | All Rights Reserved  
+</div>
+  </div>
+  </body>
+</html>
+{% endautoescape %}

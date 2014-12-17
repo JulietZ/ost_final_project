@@ -41,6 +41,12 @@ def html_display(string):
 
 JINJA_ENVIRONMENT.filters['html_display'] = html_display
 
+class UploadImg(ndb.Model):
+    author = ndb.UserProperty()
+    createDate = ndb.DateTimeProperty(auto_now_add=True)
+    img = ndb.BlobKeyProperty()
+    imgUrl = ndb.StringProperty()
+
 class Questions(ndb.Model):
     author = ndb.UserProperty()
     content = ndb.StringProperty(indexed=False)
@@ -49,8 +55,6 @@ class Questions(ndb.Model):
     modifyDate = ndb.DateTimeProperty()
     tag = ndb.StringProperty(repeated=True)
     voteScore = ndb.IntegerProperty()
-    img = ndb.BlobKeyProperty()
-    imgUrl = ndb.StringProperty()
 
 class FollowQuestions(ndb.Model):
     author = ndb.UserProperty()
@@ -60,19 +64,17 @@ class FollowQuestions(ndb.Model):
     modifyDate = ndb.DateTimeProperty()
     voteScore = ndb.IntegerProperty()
     qtitle = ndb.StringProperty(indexed=False)
-    img = ndb.BlobKeyProperty()
-    imgUrl = ndb.StringProperty()
     
 class Answers(ndb.Model):
     author = ndb.UserProperty()
+    score = ndb.IntegerProperty()
     title = ndb.StringProperty(indexed=False)
     content = ndb.StringProperty(indexed=False)
     createDate = ndb.DateTimeProperty(auto_now_add=True)
     modifyDate = ndb.DateTimeProperty()
     voteScore = ndb.IntegerProperty()
     qtitle = ndb.StringProperty(indexed=False)
-    img = ndb.BlobKeyProperty()
-    imgUrl = ndb.StringProperty()
+    used = ndb.BooleanProperty()
 
 class Votes(ndb.Model):
     author = ndb.UserProperty(required=True)
@@ -90,14 +92,12 @@ class MainPage(webapp2.RequestHandler):
         else:
             url = users.create_login_url(self.request.uri)
 
-        submit_url = blobstore.create_upload_url('/question')
         if self.request.get('type'):
             qtype=self.request.get('type')
             questions_query = Questions.query(Questions.tag==qtype).order(-Questions.modifyDate)
         else:
             questions_query = Questions.query().order(-Questions.modifyDate)
         lenquestion = questions_query.fetch()
-        #questions = questions_query.fetch()
         pageno=1
         pagesize=10
         nextpage=False
@@ -126,8 +126,7 @@ class MainPage(webapp2.RequestHandler):
             'url': url,
             'pageno': pageno,
             'next': nextpage,
-            'previous': previouspage,
-            'submit_url':submit_url
+            'previous': previouspage
         }
         template = JINJA_ENVIRONMENT.get_template('mainpage.html')
         self.response.write(template.render(template_values))
@@ -150,7 +149,7 @@ class QuestionDetail(webapp2.RequestHandler):
         template = JINJA_ENVIRONMENT.get_template('detail.html')
         self.response.write(template.render(template_values))
 
-class CreateQuestion(blobstore_handlers.BlobstoreUploadHandler):
+class CreateQuestion(webapp2.RequestHandler):
     def post(self):
         if self.request.get('efquestion'):
             fquestionKey=self.request.get('efquestion')
@@ -158,14 +157,9 @@ class CreateQuestion(blobstore_handlers.BlobstoreUploadHandler):
             fquestion.title=self.request.get('eftitle')
             fquestion.content=self.request.get('efcontent')
             fquestion.modifyDate=datetime.datetime.now()
-            submitimg=self.get_uploads('fimg')
-            if submitimg:
-                blob_info = submitimg[0]
-                fquestion.img = blob_info.key()
-                imgtype = blob_info.filename[-4:].lower()
-                fquestion.imgUrl = images.get_serving_url(blob_info.key())+imgtype
             fquestion.put()
-            self.redirect('/personal')
+            redirectURL = "/personal"
+            self.redirect(redirectURL)
 
         elif self.request.get('equestion'):
             questionKey=self.request.get('equestion')
@@ -174,12 +168,6 @@ class CreateQuestion(blobstore_handlers.BlobstoreUploadHandler):
             question.content=self.request.get('eqcontent')
             question.tag=self.request.get('eqtag',allow_multiple=True)
             question.modifyDate=datetime.datetime.now()
-            submitimg=self.get_uploads('qimg')
-            if submitimg:
-                blob_info = submitimg[0]
-                question.img = blob_info.key()
-                imgtype = blob_info.filename[-4:].lower()
-                question.imgUrl = images.get_serving_url(blob_info.key())+imgtype
             question.put()
             redirectURL = "/view?questionKey=%s" % questionKey
             self.redirect(redirectURL)
@@ -194,12 +182,6 @@ class CreateQuestion(blobstore_handlers.BlobstoreUploadHandler):
             fquestion.voteScore = 0
             fquestion.qtitle=question.title
             fquestion.modifyDate=datetime.datetime.now()
-            submitimg=self.get_uploads('qimg')
-            if submitimg:
-                blob_info = submitimg[0]
-                fquestion.img = blob_info.key()
-                imgtype = blob_info.filename[-4:].lower()
-                fquestion.imgUrl = images.get_serving_url(blob_info.key())+imgtype
             fquestion.put()
             redirectURL = "/view?questionKey=%s" % questionKey
             self.redirect(redirectURL)
@@ -212,17 +194,11 @@ class CreateQuestion(blobstore_handlers.BlobstoreUploadHandler):
             question.voteScore = 0
             question.tag = self.request.get('qtag', allow_multiple=True)
             question.modifyDate=datetime.datetime.now()
-            submitimg=self.get_uploads('qimg')
-            if submitimg:
-                blob_info = submitimg[0]
-                question.img = blob_info.key()
-                imgtype = blob_info.filename[-4:].lower()
-                question.imgUrl = images.get_serving_url(blob_info.key())+imgtype
             question.put()
             redirectURL = "/view?questionKey=%s" % question.key.urlsafe()
             self.redirect(redirectURL)
 
-class CreateAnswer(blobstore_handlers.BlobstoreUploadHandler):
+class CreateAnswer(webapp2.RequestHandler):
     def post(self):
         if self.request.get('eanswer'):
             answerKey=self.request.get('eanswer')
@@ -230,14 +206,9 @@ class CreateAnswer(blobstore_handlers.BlobstoreUploadHandler):
             answer.title=self.request.get('eatitle')
             answer.content=self.request.get('eacontent')
             answer.modifyDate=datetime.datetime.now()
-            submitimg=self.get_uploads('aimg')
-            if submitimg:
-                blob_info = submitimg[0]
-                answer.img = blob_info.key()
-                imgtype = blob_info.filename[-4:].lower()
-                answer.imgUrl = images.get_serving_url(blob_info.key())+imgtype
             answer.put()
-            self.redirect('/personal')
+            redirectURL = "/personal"
+            self.redirect(redirectURL)
 
         elif self.request.get('atitle'):
             questionKey=self.request.get('questionKey')
@@ -249,12 +220,12 @@ class CreateAnswer(blobstore_handlers.BlobstoreUploadHandler):
             answer.voteScore = 0
             answer.modifyDate=datetime.datetime.now()
             answer.qtitle=question.title
-            submitimg=self.get_uploads('aimg')
-            if submitimg:
-                blob_info = submitimg[0]
-                answer.img = blob_info.key()
-                imgtype = blob_info.filename[-4:].lower()
-                answer.imgUrl = images.get_serving_url(blob_info.key())+imgtype
+            answer.used=False
+            scoreanswer = Answers.query(Answers.author==users.get_current_user()).get()
+            if scoreanswer:
+                answer.score=scoreanswer.score
+            else:
+                answer.score = 0
             answer.put()
             redirectURL = "/view?questionKey=%s" % self.request.get('questionKey')
             self.redirect(redirectURL)
@@ -268,11 +239,14 @@ class Personal(webapp2.RequestHandler):
         answers=answer_qry.fetch()
         fquestion_qry = FollowQuestions.query(FollowQuestions.author == user).order(-FollowQuestions.modifyDate)
         fquestions=fquestion_qry.fetch()
+        image_qry = UploadImg.query(UploadImg.author == user).order(-UploadImg.createDate)
+        images=image_qry.fetch()
         template_values = {
             'user': user,
             'questions': questions,
             'answers': answers,
-            'fquestions': fquestions
+            'fquestions': fquestions,
+            'images': images
         }
         template = JINJA_ENVIRONMENT.get_template('homepage.html')
         self.response.write(template.render(template_values))        
@@ -283,41 +257,33 @@ class Edit(webapp2.RequestHandler):
         if self.request.get('create'):
             questionKey=self.request.get('questionKey')
             question=ndb.Key(urlsafe = questionKey).get()
-            submit_url = blobstore.create_upload_url('/question')
             template_values = {
                     'user': user,
                     'question': question,
-                    'following': "following",
-                    'submit_url': submit_url
+                    'following': "following"
                 }
 
         else:
             if self.request.get('questionKey'):
-                submit_url = blobstore.create_upload_url('/question')
                 questionKey=self.request.get('questionKey')
                 question=ndb.Key(urlsafe = questionKey).get()
                 template_values = {
                     'user': user,
-                    'question': question,
-                    'submit_url': submit_url
+                    'question': question
                 }
             elif self.request.get('fquestionKey'):
-                submit_url = blobstore.create_upload_url('/question')
                 fquestionKey=self.request.get('fquestionKey')
                 fquestion=ndb.Key(urlsafe = fquestionKey).get()
                 template_values = {
                     'user': user,
-                    'fquestion': fquestion,
-                    'submit_url': submit_url
+                    'fquestion': fquestion
                 }
             else:
-                submit_url = blobstore.create_upload_url('/answer')
                 answerKey=self.request.get('answerKey')
                 answer=ndb.Key(urlsafe = answerKey).get()
                 template_values = {
                     'user': user,
-                    'answer': answer,
-                    'submit_url': submit_url
+                    'answer': answer
                 }
         template = JINJA_ENVIRONMENT.get_template('edit.html')
         self.response.write(template.render(template_values))
@@ -330,20 +296,20 @@ class ViewQuestion(webapp2.RequestHandler):
 
         else:
             url = users.create_login_url(self.request.uri)
-        submit_url = blobstore.create_upload_url('/answer')
 
         if self.request.get('questionKey'):
             questionKey=self.request.get('questionKey')
             question=ndb.Key(urlsafe = questionKey).get()
-            answers = Answers.query(ancestor=question.key).order(-Answers.voteScore).fetch()
+            answers = Answers.query(Answers.used==False,ancestor=question.key).order(-Answers.voteScore).fetch()
+            usedAnswer = Answers.query(Answers.used==True,ancestor=question.key).get()
             fquestions = FollowQuestions.query(ancestor=question.key).order(-FollowQuestions.modifyDate).fetch()
             template_values = {
                 'user': user,
                 'question': question,
                 'answers': answers,
                 'url': url,
-                'submit_url':submit_url,
-                'fquestions':fquestions
+                'fquestions':fquestions,
+                'usedAnswer':usedAnswer
             }
             template = JINJA_ENVIRONMENT.get_template('view.html')
             self.response.write(template.render(template_values))
@@ -490,7 +456,47 @@ class RSSProcess(webapp2.RequestHandler):
 
 class Delete(webapp2.RequestHandler):
     def get(self):
-        if self.request.get('questionKey'):
+        if self.request.get('fquestionKey'):
+            try:
+                fquestionKey=self.request.get('fquestionKey')
+                fquestion=ndb.Key(urlsafe = fquestionKey).get()
+                votes = Votes.query(ancestor=fquestion.key).fetch()
+                for vote in votes:
+                    vote.key.delete()
+                fquestion.key.delete()
+                if self.request.get('questionKey'):
+                    redirectURL = "/view?questionKey=%s" % self.request.get('questionKey')
+                    self.redirect(redirectURL)
+                else:
+                    self.redirect('/personal')
+            except:
+                if self.request.get('questionKey'):
+                    redirectURL = "/view?questionKey=%s" % self.request.get('questionKey')
+                    self.redirect(redirectURL)
+                else:
+                    self.redirect('/personal')
+                return
+        elif self.request.get('answerKey'):
+            try:
+                answerKey=self.request.get('answerKey')
+                answer=ndb.Key(urlsafe = answerKey).get()
+                votes = Votes.query(ancestor=answer.key).fetch()
+                for vote in votes:
+                    vote.key.delete()
+                answer.key.delete()
+                if self.request.get('questionKey'):
+                    redirectURL = "/view?questionKey=%s" % self.request.get('questionKey')
+                    self.redirect(redirectURL)
+                else:
+                    self.redirect('/personal')
+            except:
+                if self.request.get('questionKey'):
+                    redirectURL = "/view?questionKey=%s" % self.request.get('questionKey')
+                    self.redirect(redirectURL)
+                else:
+                    self.redirect('/personal')
+                return
+        elif self.request.get('questionKey'):
             try:
                 questionKey=self.request.get('questionKey')
                 question=ndb.Key(urlsafe = questionKey).get()
@@ -504,36 +510,82 @@ class Delete(webapp2.RequestHandler):
                 for vote in votes:
                     vote.key.delete()
                 question.key.delete()
-                self.redirect('/personal')
-            except:
-                self.redirect('/personal')
-                return
-        elif self.request.get('fquestionKey'):
-            try:
-                fquestionKey=self.request.get('fquestionKey')
-                fquestion=ndb.Key(urlsafe = fquestionKey).get()
-                votes = Votes.query(ancestor=fquestion.key).fetch()
-                for vote in votes:
-                    vote.key.delete()
-                fquestion.key.delete()
-                self.redirect('/personal')
-            except:
-                self.redirect('/personal')
-                return
-        elif self.request.get('answerKey'):
-            try:
-                answerKey=self.request.get('answerKey')
-                answer=ndb.Key(urlsafe = answerKey).get()
-                votes = Votes.query(ancestor=answer.key).fetch()
-                for vote in votes:
-                    vote.key.delete()
-                answer.key.delete()
-                self.redirect('/personal')
+                self.redirect('/')
             except:
                 self.redirect('/personal')
                 return
         else:
-            self.redirect('/personal')
+            self.redirect('/')
+
+class Permalink(blobstore_handlers.BlobstoreUploadHandler):
+    def post(self):
+        try:
+            submitimg=self.get_uploads('img')
+            imgentity=UploadImg()
+            if submitimg:
+                blob_info = submitimg[0]
+                imgentity.img = blob_info.key()
+                imgtype = blob_info.filename[-4:].lower()
+                imgentity.imgUrl = images.get_serving_url(blob_info.key())+imgtype
+            imgentity.author=users.get_current_user()
+            imgentity.put()
+            template_values = {
+                'user': users.get_current_user(),
+                'image': imgentity
+            }
+            template = JINJA_ENVIRONMENT.get_template('permalink.html')
+            self.response.write(template.render(template_values))
+
+        except:
+            template_values = {
+                'user': users.get_current_user(),
+                'error': "Error"
+            }
+            template = JINJA_ENVIRONMENT.get_template('permalink.html')
+            self.response.write(template.render(template_values))
+            return
+
+class Upload(webapp2.RequestHandler):
+    def get(self):
+        user=users.get_current_user()
+        upload_url = blobstore.create_upload_url('/permalink')
+        template_values = {
+            'user': user,
+            'upload_url': upload_url
+        }
+        template = JINJA_ENVIRONMENT.get_template('uploadimg.html')
+        self.response.write(template.render(template_values))
+
+class SelectAnswer(webapp2.RequestHandler):
+    def get(self):
+        questionKey=self.request.get('questionKey')
+        answerKey=self.request.get('answerKey')
+        answer=ndb.Key(urlsafe = answerKey).get()
+        author=answer.author
+        answer.used=True
+        answer.put()
+        answers = Answers.query(Answers.author==author).fetch()
+        for myanswer in answers:
+            myanswer.score=myanswer.score+1
+            myanswer.put()
+        redirectURL = "/view?questionKey=%s" % self.request.get('questionKey')
+        self.redirect(redirectURL)
+
+class UnSelectAnswer(webapp2.RequestHandler):
+    def get(self):
+        questionKey=self.request.get('questionKey')
+        answerKey=self.request.get('answerKey')
+        answer=ndb.Key(urlsafe = answerKey).get()
+        author=answer.author
+        answer.used=False
+        answer.put()
+        answers = Answers.query(Answers.author==author).fetch()
+        for myanswer in answers:
+            myanswer.score=myanswer.score-1
+            myanswer.put()
+        redirectURL = "/view?questionKey=%s" % self.request.get('questionKey')
+        self.redirect(redirectURL)
+
 
 application = webapp2.WSGIApplication([
     ('/', MainPage),
@@ -547,6 +599,10 @@ application = webapp2.WSGIApplication([
     ('/voteUp', VoteUp),
     ('/voteDown', VoteDown),
     ('/RSS',RSSProcess),
-    ('/delete',Delete)
+    ('/delete',Delete),
+    ('/permalink',Permalink),
+    ('/upload',Upload),
+    ('/select', SelectAnswer),
+    ('/unlike', UnSelectAnswer)
 ], debug=True)
 
