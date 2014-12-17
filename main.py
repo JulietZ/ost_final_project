@@ -556,6 +556,15 @@ class Upload(webapp2.RequestHandler):
         template = JINJA_ENVIRONMENT.get_template('uploadimg.html')
         self.response.write(template.render(template_values))
 
+class ImgList(webapp2.RequestHandler):
+    def get(self):
+        images = UploadImg.query().order(-UploadImg.createDate).fetch()
+        template_values = {
+            'images': images
+        }
+        template = JINJA_ENVIRONMENT.get_template('imglist.html')
+        self.response.write(template.render(template_values))
+
 class SelectAnswer(webapp2.RequestHandler):
     def get(self):
         questionKey=self.request.get('questionKey')
@@ -602,6 +611,7 @@ application = webapp2.WSGIApplication([
     ('/delete',Delete),
     ('/permalink',Permalink),
     ('/upload',Upload),
+    ('/imglist', ImgList),
     ('/select', SelectAnswer),
     ('/unlike', UnSelectAnswer)
 ], debug=True)
