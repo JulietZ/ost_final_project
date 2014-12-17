@@ -15,7 +15,7 @@
   <div id="content">
     {% for image in images %}
     <div>
-    <h3><a href="{{ image.imgUrl}} ">{{ image.imgUrl}}</a></h3>
+    <a href="{{ image.imgUrl}} ">{{ image.imgUrl}}</a><br/>
     <i>created time: {{ image.createDate.strftime("%y/%m/%d %H:%M:%S") }}<br/></i>
     <i>uploaded by: {{ image.author }}<br/></i>
     <a href="{{ image.imgUrl}} "><img src="{{ image.imgUrl }}"></img></a><br/>

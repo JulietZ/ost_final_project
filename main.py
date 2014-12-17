@@ -94,10 +94,10 @@ class MainPage(webapp2.RequestHandler):
 
         if self.request.get('type'):
             qtype=self.request.get('type')
-            questions_query = Questions.query(Questions.tag==qtype).order(-Questions.modifyDate)
+            questions_query = Questions.query(Questions.tag==qtype)
         else:
-            questions_query = Questions.query().order(-Questions.modifyDate)
-        lenquestion = questions_query.fetch()
+            questions_query = Questions.query()
+        lenquestion = questions_query.order(-Questions.modifyDate).fetch()
         pageno=1
         pagesize=10
         nextpage=False
@@ -116,7 +116,7 @@ class MainPage(webapp2.RequestHandler):
                 temp=pagesize
             else:
                 temp=len(lenquestion)-(pagesize*(pageno-1))
-            questions = questions_query.fetch(temp,offset=(pageno-1)*pagesize)
+            questions = questions_query.order(-Questions.modifyDate).fetch(temp,offset=(pageno-1)*pagesize)
         else:
             questions = lenquestion
         
@@ -158,7 +158,7 @@ class CreateQuestion(webapp2.RequestHandler):
             fquestion.content=self.request.get('efcontent')
             fquestion.modifyDate=datetime.datetime.now()
             fquestion.put()
-            redirectURL = "/personal"
+            redirectURL = "/"
             self.redirect(redirectURL)
 
         elif self.request.get('equestion'):
@@ -207,7 +207,7 @@ class CreateAnswer(webapp2.RequestHandler):
             answer.content=self.request.get('eacontent')
             answer.modifyDate=datetime.datetime.now()
             answer.put()
-            redirectURL = "/personal"
+            redirectURL = "/"
             self.redirect(redirectURL)
 
         elif self.request.get('atitle'):
@@ -229,27 +229,6 @@ class CreateAnswer(webapp2.RequestHandler):
             answer.put()
             redirectURL = "/view?questionKey=%s" % self.request.get('questionKey')
             self.redirect(redirectURL)
-
-class Personal(webapp2.RequestHandler):
-    def get(self):
-        user = users.get_current_user()
-        question_qry = Questions.query(Questions.author == user).order(-Questions.modifyDate)
-        questions=question_qry.fetch()
-        answer_qry = Answers.query(Answers.author == user).order(-Answers.voteScore)
-        answers=answer_qry.fetch()
-        fquestion_qry = FollowQuestions.query(FollowQuestions.author == user).order(-FollowQuestions.modifyDate)
-        fquestions=fquestion_qry.fetch()
-        image_qry = UploadImg.query(UploadImg.author == user).order(-UploadImg.createDate)
-        images=image_qry.fetch()
-        template_values = {
-            'user': user,
-            'questions': questions,
-            'answers': answers,
-            'fquestions': fquestions,
-            'images': images
-        }
-        template = JINJA_ENVIRONMENT.get_template('homepage.html')
-        self.response.write(template.render(template_values))        
 
 class Edit(webapp2.RequestHandler):
     def get(self):
@@ -434,25 +413,6 @@ class VoteDown(webapp2.RequestHandler):
         redirectURL = "/view?questionKey=%s" % self.request.get('questionKey')
         self.redirect(redirectURL)
 
-class RSSProcess(webapp2.RequestHandler):
-    def get(self):
-        if self.request.get('questionKey'):
-            baseurl = self.request.host_url
-            questionKey=self.request.get('questionKey')
-            question=ndb.Key(urlsafe = questionKey).get()
-            fquestions = FollowQuestions.query(ancestor=question.key).order(-FollowQuestions.modifyDate).fetch()
-            answers = Answers.query(ancestor=question.key).order(-Answers.voteScore).fetch()
-            questionlink=baseurl+'/view?questionKey='+question.key.urlsafe()
-            template_values = {
-                'question': question,
-                'answers': answers,
-                'questionlink': questionlink,
-                'answers': answers,
-                'fquestions': fquestions
-            }
-            self.response.headers['Content-Type'] = 'text/xml'
-            template = JINJA_ENVIRONMENT.get_template('RSS.xml')
-            self.response.write(template.render(template_values))
 
 class Delete(webapp2.RequestHandler):
     def get(self):
@@ -460,7 +420,7 @@ class Delete(webapp2.RequestHandler):
             try:
                 fquestionKey=self.request.get('fquestionKey')
                 fquestion=ndb.Key(urlsafe = fquestionKey).get()
-                votes = Votes.query(ancestor=fquestion.key).fetch()
+                votes = Votes.query(ancestor=fquestion.key).order(-Votes.createDate).fetch()
                 for vote in votes:
                     vote.key.delete()
                 fquestion.key.delete()
@@ -468,13 +428,13 @@ class Delete(webapp2.RequestHandler):
                     redirectURL = "/view?questionKey=%s" % self.request.get('questionKey')
                     self.redirect(redirectURL)
                 else:
-                    self.redirect('/personal')
+                    self.redirect('/')
             except:
                 if self.request.get('questionKey'):
                     redirectURL = "/view?questionKey=%s" % self.request.get('questionKey')
                     self.redirect(redirectURL)
                 else:
-                    self.redirect('/personal')
+                    self.redirect('/')
                 return
         elif self.request.get('answerKey'):
             try:
@@ -488,19 +448,20 @@ class Delete(webapp2.RequestHandler):
                     redirectURL = "/view?questionKey=%s" % self.request.get('questionKey')
                     self.redirect(redirectURL)
                 else:
-                    self.redirect('/personal')
+                    self.redirect('/')
             except:
                 if self.request.get('questionKey'):
                     redirectURL = "/view?questionKey=%s" % self.request.get('questionKey')
                     self.redirect(redirectURL)
                 else:
-                    self.redirect('/personal')
+                    self.redirect('/')
                 return
         elif self.request.get('questionKey'):
             try:
                 questionKey=self.request.get('questionKey')
                 question=ndb.Key(urlsafe = questionKey).get()
-                fquestions = FollowQuestions.query(ancestor=question.key).fetch()
+                fquestion_query = FollowQuestions.query(ancestor=question.key)
+                fquestions=fquestion_query.order(-FollowQuestions.modifyDate).fetch()
                 answers = Answers.query(ancestor=question.key).fetch()
                 votes = Votes.query(ancestor=question.key).fetch()
                 for fquestion in fquestions:
@@ -512,7 +473,7 @@ class Delete(webapp2.RequestHandler):
                 question.key.delete()
                 self.redirect('/')
             except:
-                self.redirect('/personal')
+                self.redirect('/')
                 return
         else:
             self.redirect('/')
@@ -525,8 +486,7 @@ class Permalink(blobstore_handlers.BlobstoreUploadHandler):
             if submitimg:
                 blob_info = submitimg[0]
                 imgentity.img = blob_info.key()
-                imgtype = blob_info.filename[-4:].lower()
-                imgentity.imgUrl = images.get_serving_url(blob_info.key())+imgtype
+                imgentity.imgUrl = images.get_serving_url(blob_info.key())
             imgentity.author=users.get_current_user()
             imgentity.put()
             template_values = {
@@ -556,15 +516,6 @@ class Upload(webapp2.RequestHandler):
         template = JINJA_ENVIRONMENT.get_template('uploadimg.html')
         self.response.write(template.render(template_values))
 
-class ImgList(webapp2.RequestHandler):
-    def get(self):
-        images = UploadImg.query().order(-UploadImg.createDate).fetch()
-        template_values = {
-            'images': images
-        }
-        template = JINJA_ENVIRONMENT.get_template('imglist.html')
-        self.response.write(template.render(template_values))
-
 class SelectAnswer(webapp2.RequestHandler):
     def get(self):
         questionKey=self.request.get('questionKey')
@@ -573,7 +524,8 @@ class SelectAnswer(webapp2.RequestHandler):
         author=answer.author
         answer.used=True
         answer.put()
-        answers = Answers.query(Answers.author==author).fetch()
+        answer_query = Answers.query(Answers.author==author)
+        answers = answer_query.fetch()
         for myanswer in answers:
             myanswer.score=myanswer.score+1
             myanswer.put()
@@ -588,12 +540,22 @@ class UnSelectAnswer(webapp2.RequestHandler):
         author=answer.author
         answer.used=False
         answer.put()
-        answers = Answers.query(Answers.author==author).fetch()
+        answer_query = Answers.query(Answers.author==author)
+        answers = answer_query.fetch()
         for myanswer in answers:
             myanswer.score=myanswer.score-1
             myanswer.put()
         redirectURL = "/view?questionKey=%s" % self.request.get('questionKey')
         self.redirect(redirectURL)
+
+class ImgList(webapp2.RequestHandler):
+    def get(self):
+        images = UploadImg.query().order(-UploadImg.createDate).fetch()
+        template_values = {
+            'images': images
+        }
+        template = JINJA_ENVIRONMENT.get_template('imglist.html')
+        self.response.write(template.render(template_values))
 
 
 application = webapp2.WSGIApplication([
@@ -602,12 +564,10 @@ application = webapp2.WSGIApplication([
     ('/detail',QuestionDetail),
     ('/question', CreateQuestion),
     ('/answer', CreateAnswer),
-    ('/personal', Personal),
     ('/edit', Edit),
     ('/view', ViewQuestion),
     ('/voteUp', VoteUp),
     ('/voteDown', VoteDown),
-    ('/RSS',RSSProcess),
     ('/delete',Delete),
     ('/permalink',Permalink),
     ('/upload',Upload),

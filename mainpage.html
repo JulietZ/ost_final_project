@@ -11,7 +11,7 @@
   {% if user %}
     Welcome! {{ user.nickname() }}
     <br/>
-    <a href="/personal">Home Page</a>&nbsp;&nbsp;&nbsp;&nbsp;
+    
     <a href="{{ url|safe }}">logout</a><br/><br/>
     <div><a href="/upload">Upload an image</a>&nbsp;&nbsp;&nbsp;&nbsp;<a href="/imglist">View Image List</a></div><br/>
   {% else %}

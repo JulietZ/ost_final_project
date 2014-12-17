@@ -1,1 +1,29 @@
 indexes:
+
+- kind: UploadImg
+  ancestor: yes
+  properties:
+  - name: author
+  - name: createDate
+    direction: desc
+
+- kind: Questions
+  properties:
+  - name: author
+  - name: modifyDate
+    direction: desc
+  - name: tag
+
+- kind: FollowQuestions
+  ancestor: yes
+  properties:
+  - name: author
+  - name: modifyDate
+    direction: desc
+
+- kind: Answers
+  ancestor: yes
+  properties:
+  - name: author
+  - name: voteScore
+    direction: desc
