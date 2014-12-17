@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+{% autoescape true %}
+<html>
+  <body>
+  <div>
+  {% if user %}
+    Welcome! {{ user.nickname() }}
+    <br/>
+    <a href="/personal">Home Page</a>&nbsp;&nbsp;&nbsp;
+    <a href="{{ url|safe }}">logout</a>
+  {% else %}
+    <a href="{{ url|safe }}">login</a>
+  {% endif %}
+  <br/>
+  </div>
+  <div>
+    <h3>{{ question.title|safe}}<h3>
+    <i>created time: {{ question.createDate.strftime("%y/%m/%d %H:%M:%S") }}<br/></i>
+    <i>latest modified time: {{ question.modifyDate.strftime("%y/%m/%d %H:%M:%S") }}<br/></i>
+    <i>questioned by: {{ question.author }}<br/></i>
+    <i>tag: 
+    {% for sitag in question.tag %}
+    &nbsp;&nbsp;-<a href="{{ ('/tag?type=' + sitag) |safe }}">{{ sitag}}</a>
+    {% endfor %}<br/></i>
+    <i>Vote Score: {{ question.voteScore }}<br/><br/></i>
+    <i>{{ question.content }}<br/></i>
+    {% if question.imgUrl %}        
+        <div><a href="{{ question.imgUrl}} "><img src="{{ question.imgUrl }}"></img></a><br/>
+        <a href="{{ question.imgUrl}} ">{{ question.imgUrl}}</a></div>
+    {% endif %}
+  </div>
+  <a href="/">Back</a>
+  </body>
+</html>
+{% endautoescape %}

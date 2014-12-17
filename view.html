@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+{% autoescape true %}
+<html>
+  <body>
+  <div>
+  {% if user %}
+    Welcome! {{ user.nickname() }}
+    <br/>
+    <a href="/personal">Home Page</a>&nbsp;&nbsp;&nbsp;
+    <a href="{{ url|safe }}">logout</a>
+  {% else %}
+    <a href="{{ url|safe }}">login</a>
+  {% endif %}
+  <br/>
+  </div>
+  <br/>
+  <div>
+    <h3>{{ question.title|safe}}</h3>
+    created time: {{ question.createDate.strftime("%y/%m/%d %H:%M:%S") }}<br/>
+    latest modified time: {{ question.modifyDate.strftime("%y/%m/%d %H:%M:%S") }}<br/>
+    questioned by: {{ question.author }}<br/>
+    tag: 
+    {% for sitag in question.tag %}
+    &nbsp;&nbsp;-<a href="{{ ('/tag?type=' + sitag) |safe }}">{{ sitag}}</a>
+    {% endfor %}<br/>
+    Vote Score: {{ question.voteScore }}
+    {% if user %}
+    &nbsp;&nbsp;&nbsp;<a href="{{ ('/voteUp?questionKey=' + question.key.urlsafe()) |safe }}">Up</a>
+    &nbsp;&nbsp;&nbsp;<a href="{{ ('/voteDown?questionKey=' + question.key.urlsafe()) |safe }}">Down</a>
+    {% endif %}<br/><br/>
+    {{ question.content| html_display | safe }}<br/>
+    {% if question.imgUrl %}        
+        <div><a href="{{ question.imgUrl}} "><img src="{{ question.imgUrl }}"></img></a><br/>
+        <a href="{{ question.imgUrl}} ">{{ question.imgUrl}}</a></div>
+    {% endif %}
+    <br/>
+    {% if user==question.author %}
+      <a href="{{ ('/edit?questionKey=' + question.key.urlsafe()) |safe }}">Edit</a>
+      &nbsp;&nbsp;&nbsp;&nbsp;<a href="{{ ('/delete?questionKey=' + question.key.urlsafe()) |safe }}">Delete</a>&nbsp;&nbsp;&nbsp;&nbsp;
+      {% endif %}
+      {% if user and user!=question.author %}
+      <a href="{{ ('/edit?create=question&questionKey=' + question.key.urlsafe()) |safe }}">create following question</a>
+    {% endif %}
+  </div>
+  {% for fquestion in fquestions %}
+  <hr>
+  <div>
+    <h3>Following Question: {{ fquestion.title|safe}}</h3>
+    <i>created time: {{ fquestion.createDate.strftime("%y/%m/%d %H:%M:%S") }}<br/></i>
+    <i>latest modified time: {{ fquestion.modifyDate.strftime("%y/%m/%d %H:%M:%S") }}<br/></i>
+    <i>follow question: {{ fquestion.qtitle }}<br/></i>
+    <i>questioned by: {{ fquestion.author }}<br/></i>
+    <i>Vote Score: {{ fquestion.voteScore }}
+    {% if user %}
+      &nbsp;&nbsp;<a href="{{ ('/voteUp?fquestionKey=' + fquestion.key.urlsafe()+'&questionKey=' + question.key.urlsafe()) |safe }}">Up</a>
+      &nbsp;&nbsp;<a href="{{ ('/voteDown?fquestionKey=' + fquestion.key.urlsafe()+'&questionKey=' + question.key.urlsafe()) |safe }}">Down</a>
+      {% endif %}<br/><br/></i>
+    <i>{{ fquestion.content }}<br/></i>
+    {% if fquestion.imgUrl %}        
+        <div><a href="{{ fquestion.imgUrl}} "><img src="{{ fquestion.imgUrl }}"></img></a><br/>
+        <a href="{{ fquestion.imgUrl}} ">{{ fquestion.imgUrl}}</a></div>
+    {% endif %}
+    <br/>
+    {% if user==fquestion.author %}
+      <a href="{{ ('/edit?fquestionKey=' + fquestion.key.urlsafe()) |safe }}">Edit</a>
+      &nbsp;&nbsp;&nbsp;&nbsp;<a href="{{ ('/delete?fquestionKey=' + fquestion.key.urlsafe()) |safe }}">Delete</a>&nbsp;&nbsp;&nbsp;&nbsp;
+      {% endif %}
+  </div>
+  {% endfor %}
+  <hr>
+  <div>
+    <h3>Your Answer List</h3>
+    <hr>
+    {% for answer in answers %}
+    <p>
+    <h3>{{ answer.title|safe}}</h3>
+    <i>created time: {{ answer.createDate.strftime("%y/%m/%d %H:%M:%S") }}<br/></i>
+    <i>latest modified time: {{ answer.modifyDate.strftime("%y/%m/%d %H:%M:%S") }}<br/></i>
+    <i>answered to question: {{ answer.qtitle }}<br/></i>
+    <i>answered by: {{ answer.author }}<br/></i>
+    <i>Vote Score: {{ answer.voteScore }}
+    {% if user %}
+      &nbsp;&nbsp;<a href="{{ ('/voteUp?answerKey=' + answer.key.urlsafe()+'&questionKey=' + question.key.urlsafe()) |safe }}">Up</a>
+      &nbsp;&nbsp;<a href="{{ ('/voteDown?answerKey=' + answer.key.urlsafe()+'&questionKey=' + question.key.urlsafe()) |safe }}">Down</a>
+      {% endif %}
+    <br/><br/></i>
+    <i>{{ answer.content | html_display | safe}}<br/></i>
+    {% if answer.imgUrl %}        
+        <div><a href="{{ answer.imgUrl}} "><img src="{{ answer.imgUrl }}"></img></a><br/>
+        <a href="{{ answer.imgUrl}} ">{{ answer.imgUrl}}</a></div>
+    {% endif %}
+      <br/>
+      {% if user==answer.author %}
+      <a href="{{ ('/edit?answerKey=' + answer.key.urlsafe()) |safe }}">Edit</a>
+      &nbsp;&nbsp;&nbsp;&nbsp;<a href="{{ ('/delete?answerKey=' + answer.key.urlsafe()) |safe }}">Delete</a>
+      {% endif %}
+      <hr>
+      </p>
+    {% endfor %}
+  </div>
+  <div>
+  {% if user %}
+    <h3>Submit Your Answer</h3>
+    <form action="{{ submit_url }}" method="post" enctype="multipart/form-data">
+    <input type="hidden" name="questionKey" value="{{ question.key.urlsafe() }}">
+      <div>Title: </br><textarea name="atitle" rows="3" cols="60" required>Type your answer title here ...</textarea></div>
+      <div>Content: </br><textarea name="acontent" rows="10" cols="60" required>Type your answer content here ...</textarea></div>
+      <div>Upload a image: <input type="file" name="aimg"></div>
+      <div>
+      <input type="submit" value="Submit Answer">&nbsp;
+      <input type="reset" value="Reset">
+      </div>
+    </form>
+  {% endif %}
+  </div>
+  </body>
+</html>
+{% endautoescape %}

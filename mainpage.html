@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+{% autoescape true %}
+<html>
+  <body>
+  <div>
+  {% if user %}
+    Welcome! {{ user.nickname() }}
+    <br/>
+    <a href="/personal">Home Page</a>&nbsp;&nbsp;&nbsp;
+    <a href="{{ url|safe }}">logout</a>
+  {% else %}
+    <a href="{{ url|safe }}">login</a>
+  {% endif %}
+  <br/>
+  </div>
+  <div>
+    <h3>Question List</h3>
+    <a href="/">All</a>&nbsp;&nbsp;
+    <a href="/tag?type=Movie">Movie</a>&nbsp;&nbsp;
+    <a href="/tag?type=Music">Music</a>&nbsp;&nbsp;
+    <a href="/tag?type=Sports">Sports</a>&nbsp;&nbsp;
+    <a href="/tag?type=Programming">Programming</a>&nbsp;&nbsp;
+    <a href="/tag?type=Travel">Travel</a>
+    <br/>
+    {% if previous==True %}
+      <a href="/tag?pageno={{ pageno }}&previouspage={{ previous }}">Previous</a>&nbsp;&nbsp;
+      {% endif %}
+      Page: {{ pageno }}&nbsp;&nbsp;
+      {% if next==True %}
+      <a href="/tag?pageno={{ pageno }}&nextpage={{ next }}">Next</a>
+      {% endif %}
+      <br/>
+    <hr>
+    {% for question in questions %}
+    <p>
+      <h3><a href="{{ ('/view?questionKey=' + question.key.urlsafe()) |safe }}">{{ question.title|safe}}</a></h3>
+    <i>created time: {{ question.createDate.strftime("%y/%m/%d %H:%M:%S") }}<br/></i>
+    <i>latest modified time: {{ question.modifyDate.strftime("%y/%m/%d %H:%M:%S") }}<br/></i>
+    <i>questioned by: {{ question.author }}<br/></i>
+    <i>tag: 
+    {% for sitag in question.tag %}
+    &nbsp;&nbsp;-<a href="{{ ('/tag?type=' + sitag) |safe }}">{{ sitag }}</a>
+    {% endfor %}<br/></i>
+    <i>Vote Score: {{ question.voteScore }}<br/><br/></i>
+    <i>{{ question.content |truncate(500,true)| html_display | safe}}
+      {% if question.content|truncate(500,true) != question.content %}
+        <a href="{{ ('/detail?questionKey=' + question.key.urlsafe()) |safe }}">. . .</a>
+        {% endif %}
+        <br/></i>
+    {% if question.imgUrl %}        
+        <div><a href="{{ question.imgUrl}} "><img src="{{ question.imgUrl }}"></img></a><br/>
+        <a href="{{ question.imgUrl}} ">{{ question.imgUrl}}</a></div>
+    {% endif %}
+    {% if user and user!=question.author %}
+      <a href="{{ ('/edit?create=question&questionKey=' + question.key.urlsafe()) |safe }}">create following question</a>
+    {% endif %}
+    <hr>
+    </p>
+    {% endfor %}
+    {% if previous==True %}
+      <a href="/tag?pageno={{ pageno }}&previouspage={{ previous }}">Previous</a>&nbsp;&nbsp;
+      {% endif %}
+      Page: {{ pageno }}&nbsp;&nbsp;
+      {% if next==True %}
+      <a href="/tag?pageno={{ pageno }}&nextpage={{ next }}">Next</a>
+      {% endif %}
+    </div>
+  <div>
+  {% if user %}
+    <h3>Submit Your Question</h3>
+    <form action="{{ submit_url }}" method="post" enctype="multipart/form-data">
+      <div>Title: </br><textarea name="qtitle" rows="3" cols="60" required>Type your question title here ...</textarea></div>
+      <div>Content: </br><textarea name="qcontent" rows="10" cols="60" required>Type your question content here ...</textarea></div>
+      <div>
+        Tag:<br/>
+        <input type="checkbox" name="qtag" value="Movie">Movie<br>
+        <input type="checkbox" name="qtag" value="Music">Music<br>
+        <input type="checkbox" name="qtag" value="Sports">Sports<br>
+        <input type="checkbox" name="qtag" value="Programming">Programming<br>
+        <input type="checkbox" name="qtag" value="Travel">Travel
+      </div>
+      <div>Upload a image: <input type="file" name="qimg"></div>
+      <div>
+      <input type="submit" value="Submit Question">&nbsp;
+      <input type="reset" value="Reset">
+      </div>
+    </form>
+  {% endif %}
+  </div>
+  </body>
+</html>
+{% endautoescape %}

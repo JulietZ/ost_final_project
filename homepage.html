@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+{% autoescape true %}
+<html>
+  <body>
+  <div>
+    {{ user }} 's Home
+  <br/>
+  <a href="/">Back to Main Page</a>
+  </div>
+  <div>
+    <h3>Your Question List</h3>
+     <hr>
+    {% for question in questions %}
+      <p>
+      <h3>{{ question.title|safe}}</h3>
+    <i>created time: {{ question.createDate.strftime("%y/%m/%d %H:%M:%S") }}<br/></i>
+    <i>latest modified time: {{ question.modifyDate.strftime("%y/%m/%d %H:%M:%S") }}<br/></i>
+    <i>questioned by: {{ question.author }}<br/></i>
+    <i>tag: 
+    {% for sitag in question.tag %}
+    &nbsp;&nbsp;-<a href="{{ ('/tag?type=' + sitag) |safe }}">{{ sitag}}</a>
+    {% endfor %}<br/></i>
+    <i>Vote Score: {{ question.voteScore }}<br/><br/></i>
+    <i>{{ question.content |truncate(500,true)| html_display | safe}}
+      {% if question.content|truncate(500,true) != question.content %}
+        <a href="{{ ('/detail?questionKey=' + question.key.urlsafe()) |safe }}">. . .</a>
+        {% endif %}
+        <br/></i>
+    {% if question.imgUrl %}        
+        <div><a href="{{ question.imgUrl}} "><img src="{{ question.imgUrl }}"></img></a><br/>
+        <a href="{{ question.imgUrl}} ">{{ question.imgUrl}}</a></div>
+    {% endif %}
+    <br/><a href="{{ ('/edit?questionKey=' + question.key.urlsafe()) |safe }}">Edit</a>
+    &nbsp;&nbsp;&nbsp;&nbsp;<a href="{{ ('/delete?questionKey=' + question.key.urlsafe()) |safe }}">Delete</a>
+    <hr>
+    </p>
+    {% endfor %}
+  </div>
+  <div>
+    <h3>Your Following Question List</h3>
+     <hr>
+  {% for fquestion in fquestions %}
+  <p>
+  <div>
+    <h3>Following Question: {{ fquestion.title|safe}}</h3>
+    <i>created time: {{ fquestion.createDate.strftime("%y/%m/%d %H:%M:%S") }}<br/></i>
+    <i>latest modified time: {{ fquestion.modifyDate.strftime("%y/%m/%d %H:%M:%S") }}<br/></i>
+    <i>follow question: {{ fquestion.qtitle }}<br/></i>
+    <i>questioned by: {{ fquestion.author }}<br/></i>
+    <i>Vote Score: {{ fquestion.voteScore }}<br/><br/></i>
+    <i>{{ fquestion.content }}<br/></i>
+    {% if fquestion.imgUrl %}        
+        <div><a href="{{ fquestion.imgUrl}} "><img src="{{ fquestion.imgUrl }}"></img></a><br/>
+        <a href="{{ fquestion.imgUrl}} ">{{ fquestion.imgUrl}}</a></div>
+    {% endif %}<br/>
+    {% if user==fquestion.author %}
+      <a href="{{ ('/edit?fquestionKey=' + fquestion.key.urlsafe()) |safe }}">Edit</a>
+      &nbsp;&nbsp;&nbsp;&nbsp;<a href="{{ ('/delete?fquestionKey=' + fquestion.key.urlsafe()) |safe }}">Delete</a>&nbsp;&nbsp;&nbsp;&nbsp;
+      {% endif %}
+  </div>
+  <hr>
+  </p>
+  {% endfor %}
+  </div>
+  <div>
+    <h3>Your Answer List</h3>
+    <hr>
+    {% for answer in answers %}
+    <p>
+    <h3>{{ answer.title|safe}}</h3>
+    <i>created time: {{ answer.createDate.strftime("%y/%m/%d %H:%M:%S") }}<br/></i>
+    <i>latest modified time: {{ answer.modifyDate.strftime("%y/%m/%d %H:%M:%S") }}<br/></i>
+    <i>answered to question: {{ answer.qtitle }}<br/></i>
+    <i>answered by: {{ answer.author }}<br/></i>
+    <i>Vote Score: {{ answer.voteScore }}<br/><br/></i>
+    <i>{{ answer.content | html_display | safe}}<br/></i>
+    {% if answer.imgUrl %}        
+        <div><a href="{{ answer.imgUrl}} "><img src="{{ answer.imgUrl }}"></img></a><br/>
+        <a href="{{ answer.imgUrl}} ">{{ answer.imgUrl}}</a></div>
+    {% endif %}
+      <br/><a href="{{ ('/edit?answerKey=' + answer.key.urlsafe()) |safe }}">Edit</a>
+      &nbsp;&nbsp;&nbsp;&nbsp;<a href="{{ ('/delete?answerKey=' + answer.key.urlsafe()) |safe }}">Delete</a>
+      <hr>
+      </p>
+    {% endfor %}
+  </div>
+  </body>
+</html>
+{% endautoescape %}

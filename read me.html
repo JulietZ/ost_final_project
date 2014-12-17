@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html>
+  <body>
+  <h3>OST Final Project: question system</h3>
+  <div style="float:right;">written by Junye Zhu</div><br/>
+  <hr>
+  &nbsp;&nbsp;&nbsp;&nbsp;This project is a full featured web-based application, using Python, App Engine, developed using Github, data stored in Google App Engine's data store(ndb),templated using Jinja2.<br/><br/>
+
+  <strong>main.py:<br/></strong>
+  &nbsp;&nbsp;&nbsp;&nbsp;This the model of this application. It in charge of creation and manage the data store, and redirecting between different html page.<br/><br/>
+
+  <strong>mainpage.html:<br/></strong>
+  &nbsp;&nbsp;&nbsp;&nbsp;This is default main page fo the application. <br/>
+  &nbsp;&nbsp;&nbsp;&nbsp;If you have not signed in, you will see signin link and existing question list. You can view the question list by default all questions, or seperately with different tag. Additionally, you will only see no more then ten questions, if there are more, there will be link to see next 10, of course you would be able to view previous ten pages, sorted by reverse time of modified time.<br/>
+  &nbsp;&nbsp;&nbsp;&nbsp;To each quesiton in the question list, the title of the question will be the link to view the question, its answers and votes. However, in main page, there will be preview of the question includes create time, last modified time, question author, its tag, and vote score, its content of 500 character, if the content is more then 500, there will be link to view the whole content. If there is website link starts with http:// or https:// will be displayed as a link to that website, and if these link are jpg, png, gif, these image will be displayed in the content, same as the images uploaded by users. And if the question has uploaded image, the image will be displayed and its permalink. <br/>
+  &nbsp;&nbsp;&nbsp;&nbsp;If you have singed in, then you will see more. You will have a link to your own home page, and link to logout. Moreover, you can submit new question. To create new question, you must type a title and content, you can choose mulitple or none tag, and upload a img if you like.<br/><br/>
+
+  <strong>homepage.html:<br/></strong>
+  &nbsp;&nbsp;&nbsp;&nbsp;To each singed in user, he will have his own home page. He can view his posted questions and answers, and edit them here.<br/>
+  &nbsp;&nbsp;&nbsp;&nbsp;The question list is much like the style in mainpage, but instead of view detail link is edit link.<br/>
+  &nbsp;&nbsp;&nbsp;&nbsp;To each answer in the answer list, is displayed like question. To help user to identiy different answer, in this part will also display the question title which the answer is answer to.<br/><br/>
+
+  <strong>view.html:<br/></strong>
+  &nbsp;&nbsp;&nbsp;&nbsp;In this page, the question deatil wll be dispalyed, and link to vote up or down to the question. Each user can only vote up or down once. <br/>
+  &nbsp;&nbsp;&nbsp;&nbsp;There are also all the answers to the question, sorted by the votescore of each answer. User can also vote to answer right here, but also only once.<br/>
+  &nbsp;&nbsp;&nbsp;&nbsp;Moreover, user can view this page without loged in. If the user is loged in, then he can create his own answer to this question, same as create a question, but without tag.<br/>
+  &nbsp;&nbsp;&nbsp;&nbsp;Only in this page, there is a link for RSS Feed, which return the information of this question.<br/><br/>
+
+  <strong>detail.html:<br/></strong>
+  &nbsp;&nbsp;&nbsp;&nbsp;This page is only accessed when in the question list, one question's content is too large and user want to see the whole content of the question and its answers.<br/><br/><br/>
+
+  <strong>edit.html:<br/></strong>
+  &nbsp;&nbsp;&nbsp;&nbsp;This page is accessed when user want to edit their question or answer. On the base of create a new question, the edit page will display its original contents and image if the question/answer has one.<br/><br/>
+<hr>
+  <strong>PS:<br/></strong>
+  &nbsp;&nbsp;&nbsp;&nbsp;1. To every place you can see the tag, these are link to view the question list of this tag in main page.<br/>
+  &nbsp;&nbsp;&nbsp;&nbsp;2. Every user can edit their question and answer at there home page and view page if this question or answer is created by such user.<br/>
+  &nbsp;&nbsp;&nbsp;&nbsp;3. To every picture uploaded by user, they will be displayed and provied their permalink to be copied and pasted.<br/>
+  &nbsp;&nbsp;&nbsp;&nbsp;4. In main page, there is not only link to see next 10 questions, there will be link to see previous 10 questions.<br/>
+  &nbsp;&nbsp;&nbsp;&nbsp;5. User not only can edit their question/answer, they can also delete. If one question is deleted, then its following answers and votes will be deleted. If one answer is deleted, its vote will be deleted too.<br/>
+  &nbsp;&nbsp;&nbsp;&nbsp;6. Additional function, user can add following question to those questions which is not created by them. These following question will be displayed on view page, and personal home page. Like answer can be edited and voted, and will be added in RSS.<br/>
+
+
+  <br/> 
+  </body>
+</html>

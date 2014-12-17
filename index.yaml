@@ -1,0 +1,19 @@
+indexes:
+
+- kind: Questions
+  ancestor: yes
+  properties:
+  - name: modifyDate
+    direction: desc
+
+- kind: FollowQuestions
+  ancestor: yes
+  properties:
+  - name: modifyDate
+    direction: desc
+
+- kind: Answers
+  ancestor: yes
+  properties:
+  - name: voteScore
+    direction: desc

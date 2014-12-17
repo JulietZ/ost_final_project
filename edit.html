@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+{% autoescape true %}
+<html>
+  <body>
+  {% if following %}
+  <div>
+    <h3>{{ question.title|safe}}</h3>
+    <i>created time: {{ question.createDate.strftime("%y/%m/%d %H:%M:%S") }}<br/></i>
+    <i>latest modified time: {{ question.modifyDate.strftime("%y/%m/%d %H:%M:%S") }}<br/></i>
+    <i>questioned by: {{ question.author }}<br/></i>
+    <i>tag: 
+    {% for sitag in question.tag %}
+    &nbsp;&nbsp;-<a href="{{ ('/tag?type=' + sitag) |safe }}">{{ sitag}}</a>
+    {% endfor %}<br/></i>
+    <i>Vote Score: {{ question.voteScore }}<br/><br/></i>
+    <i>{{ question.content }}<br/></i>
+    {% if question.imgUrl %}        
+        <div><a href="{{ question.imgUrl}} "><img src="{{ question.imgUrl }}"></img></a><br/>
+        <a href="{{ question.imgUrl}} ">{{ question.imgUrl}}</a></div>
+    {% endif %}
+  </div>
+  <hr>
+  <div>
+    <h3>{{ user.nickname() }}, Create your follow question</h3>
+  <br/>
+  </div>
+  <div>
+    <form action="{{ submit_url }}" method="post" enctype="multipart/form-data">
+    <input type="hidden" name="fquestion" value="{{ question.key.urlsafe() }}">
+      <div>Title: </br><textarea name="qtitle" rows="3" cols="60" required>Type your question title here ...</textarea></div>
+      <div>Content: </br><textarea name="qcontent" rows="10" cols="60" required>Type your question content here ...</textarea></div>
+      <div>Upload a image: <input type="file" name="qimg"></div>
+      <div>
+      <input type="submit" value="Submit Question">&nbsp;
+      <input type="reset" value="Reset">
+      </div>
+    </form>
+    <a href="/">Back</a>
+  </div>
+  {% elif question %}
+  <div>
+    <h3>{{ user.nickname() }}, Edit your question</h3>
+  <br/>
+  </div>
+  <div>
+    <form action="{{ submit_url }}" method="post" enctype="multipart/form-data">
+    <input type="hidden" name="equestion" value="{{ question.key.urlsafe() }}">
+      <div>Title: </br><textarea name="eqtitle" rows="3" cols="60" required>{{ question.title }}</textarea></div>
+      <div>Content: </br><textarea name="eqcontent" rows="10" cols="60" required>{{ question.content }}</textarea></div>
+      <div>
+        Tag:<br/>
+        <input type="checkbox" name="eqtag" value="Movie">Movie<br>
+        <input type="checkbox" name="eqtag" value="Music">Music<br>
+        <input type="checkbox" name="eqtag" value="Sports">Sports<br>
+        <input type="checkbox" name="eqtag" value="Programming">Programming<br>
+        <input type="checkbox" name="eqtag" value="Travel">Travel
+      </div>
+      {% if question.imgUrl %}        
+        <div><a href="{{ question.imgUrl}} "><img src="{{ question.imgUrl }}"></img></a><br/>
+        <a href="{{ question.imgUrl}} ">{{ question.imgUrl}}</a></div>
+    {% endif %}
+      <div>Upload a image: <input type="file" name="qimg"></div>
+      <div>
+      <input type="submit" value="Finish Edit">&nbsp;
+      <input type="reset" value="Reset">
+      </div>
+    </form>
+    <a href="/personal">Back</a>
+  </div>
+  {% elif fquestion %}
+  <div>
+    <h3>{{ user.nickname() }}, Edit your following question</h3>
+  <br/>
+  </div>
+  <div>
+    <form action="{{ submit_url }}" method="post" enctype="multipart/form-data">
+    <input type="hidden" name="efquestion" value="{{ fquestion.key.urlsafe() }}">
+      <div>Title: </br><textarea name="eftitle" rows="3" cols="60" required>{{ fquestion.title }}</textarea></div>
+      <div>Content: </br><textarea name="efcontent" rows="10" cols="60" required>{{ fquestion.content }}</textarea></div>
+      {% if fquestion.imgUrl %}        
+        <div><a href="{{ fquestion.imgUrl}} "><img src="{{ fquestion.imgUrl }}"></img></a><br/>
+        <a href="{{ fquestion.imgUrl}} ">{{ fquestion.imgUrl}}</a></div>
+    {% endif %}
+      <div>Upload a image: <input type="file" name="fimg"></div>
+      <div>
+      <input type="submit" value="Finish Edit">&nbsp;
+      <input type="reset" value="Reset">
+      </div>
+    </form>
+    <a href="/personal">Back</a>
+  </div>
+  {% else %}
+  <div>
+    <h3>{{ user.nickname() }}, Edit your answer</h3>
+  <br/>
+  </div>
+  <div>
+    <form action="{{ submit_url }}" method="post" enctype="multipart/form-data">
+    <input type="hidden" name="eanswer" value="{{ answer.key.urlsafe() }}">
+      <div>Title: </br><textarea name="eatitle" rows="3" cols="60" required>{{ answer.title }}</textarea></div>
+      <div>Content: </br><textarea name="eacontent" rows="10" cols="60" required>{{ answer.content }}</textarea></div>
+      {% if answer.imgUrl %}        
+        <div><a href="{{ answer.imgUrl}} "><img src="{{ answer.imgUrl }}"></img></a><br/>
+        <a href="{{ answer.imgUrl}} ">{{ answer.imgUrl}}</a></div>
+    {% endif %}
+      <div>Upload a image: <input type="file" name="aimg"></div>
+      <div>
+      <input type="submit" value="Finish Edit">&nbsp;
+      <input type="reset" value="Reset">
+      </div>
+    </form>
+    <a href="/personal">Back</a>
+  </div>
+  {% endif %}
+  </body>
+</html>
+{% endautoescape %}
