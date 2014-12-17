@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<rss version="2.0">
+<channel>
+	<title>{{ question.title }}</title>
+    <pubdate>{{ question.modifyDate }}</pubdate>
+    <link>{{ questionlink }}</link>
+    <description>{{ question.content }}</description>
+    {% for fquestion in fquestions %}
+        <item>
+        <title>{{ fquestion.title }}</title>
+        <pubdate>{{ fquestion.modifyDate }}</pubdate>
+        <link>{{ questionlink }}</link>
+        <description>{{ fquestion.content }}</description>
+        </item>
+    {%endfor%}
+    {% for answer in answers %}
+        <item>
+        <title>{{ answer.title }}</title>
+        <pubdate>{{ answer.modifyDate }}</pubdate>
+        <link>{{ questionlink }}</link>
+        <description>{{ answer.content }}</description>
+        </item>
+    {%endfor%}
+</channel>
+</rss>
