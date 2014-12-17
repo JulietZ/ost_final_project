@@ -16,6 +16,8 @@
     <a href="{{ url|safe }}">login</a>
   {% endif %}
   <br/>
+  <br/>
+  <a href="/">Back to Main Page</a>&nbsp;&nbsp;&nbsp;<a href="{{ ('/RSS?questionKey=' + question.key.urlsafe()) |safe }}">RSS Feed</a>
   </div>
   <div id="content">
   <div>

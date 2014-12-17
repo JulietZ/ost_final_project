@@ -413,6 +413,25 @@ class VoteDown(webapp2.RequestHandler):
         redirectURL = "/view?questionKey=%s" % self.request.get('questionKey')
         self.redirect(redirectURL)
 
+class RSSProcess(webapp2.RequestHandler):
+    def get(self):
+        if self.request.get('questionKey'):
+            baseurl = self.request.host_url
+            questionKey=self.request.get('questionKey')
+            question=ndb.Key(urlsafe = questionKey).get()
+            fquestions = FollowQuestions.query(ancestor=question.key).order(-FollowQuestions.modifyDate).fetch()
+            answers = Answers.query(ancestor=question.key).order(-Answers.voteScore).fetch()
+            questionlink=baseurl+'/view?questionKey='+question.key.urlsafe()
+            template_values = {
+                'question': question,
+                'answers': answers,
+                'questionlink': questionlink,
+                'answers': answers,
+                'fquestions': fquestions
+            }
+            self.response.headers['Content-Type'] = 'text/xml'
+            template = JINJA_ENVIRONMENT.get_template('RSS.xml')
+            self.response.write(template.render(template_values))
 
 class Delete(webapp2.RequestHandler):
     def get(self):
@@ -568,6 +587,7 @@ application = webapp2.WSGIApplication([
     ('/view', ViewQuestion),
     ('/voteUp', VoteUp),
     ('/voteDown', VoteDown),
+    ('/RSS',RSSProcess),
     ('/delete',Delete),
     ('/permalink',Permalink),
     ('/upload',Upload),
